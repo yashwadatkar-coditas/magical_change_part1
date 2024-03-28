@@ -33,7 +33,7 @@ class CustomCard extends StatelessWidget {
                         width: 120,
                         child: Flexible(
                           child: Text(
-                            "${user.name}",
+                            user.name,
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -43,7 +43,7 @@ class CustomCard extends StatelessWidget {
                       ),
                       SizedBox(width: 80),
                       Text(
-                        "${user.phoneNumber}",
+                        user.phoneNumber.toString(),
                         style: TextStyle(
                           color: Colors.grey,
                           fontWeight: FontWeight.w500,
@@ -53,7 +53,7 @@ class CustomCard extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    "${user.email}",
+                    user.email,
                     style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                   const SizedBox(height: 10),
@@ -61,7 +61,7 @@ class CustomCard extends StatelessWidget {
                     height: 20,
                     width: 300,
                     child: SingleChildScrollView(
-                      child: Text("${user.address}"),
+                      child: Text(user.address),
                     ),
                   ),
                   const SizedBox(height: 10),
