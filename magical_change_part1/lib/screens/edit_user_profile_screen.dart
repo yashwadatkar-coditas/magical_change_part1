@@ -1,88 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:magical_change_part1/providers/users_list_provider.dart';
 import 'package:magical_change_part1/users_model.dart';
 import 'package:magical_change_part1/widgets/custom_elevated_button.dart';
 
-class EditUserProfileScreen extends StatefulWidget {
-  final UserModels user;
-  const EditUserProfileScreen({super.key, required this.user});
+class EditUserProfileScreen extends ConsumerWidget {
+  final int index;
+  const EditUserProfileScreen({Key? key, required this.index})
+      : super(key: key);
 
   @override
-  State<EditUserProfileScreen> createState() => _EditUserProfileScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final users = ref.watch(userListProvider);
 
-class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
-  late var nameController = TextEditingController();
-  late var emailController = TextEditingController();
-  late var phoneNumberController = TextEditingController();
-  late var addressController = TextEditingController();
+    late final TextEditingController nameController =
+        TextEditingController(text: users[index].name);
+    late final TextEditingController emailController =
+        TextEditingController(text: users[index].email);
+    late final TextEditingController phoneNumberController =
+        TextEditingController(text: users[index].phoneNumber.toString());
+    late final TextEditingController addressController =
+        TextEditingController(text: users[index].address);
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    nameController = TextEditingController(text: widget.user.name);
-    emailController = TextEditingController(text: widget.user.email);
-    phoneNumberController =
-        TextEditingController(text: widget.user.phoneNumber.toString());
-    addressController = TextEditingController(text: widget.user.address);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    nameController.dispose();
-    emailController.dispose();
-    phoneNumberController.dispose();
-    addressController.dispose();
-    super.dispose();
-  }
-
-  bool _inputValidator() {
-    if (nameController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        phoneNumberController.text.isEmpty ||
-        addressController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Field is empty'),
-          content: const Text('Please fill all fields'),
-          actions: [
-            TextButton(
+    bool _inputValidator() {
+      if (nameController.text.isEmpty ||
+          emailController.text.isEmpty ||
+          phoneNumberController.text.isEmpty ||
+          addressController.text.isEmpty) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Field is empty'),
+            content: const Text('Please fill all fields'),
+            actions: [
+              TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('Okay'))
-          ],
-        ),
-      );
+                child: const Text('Okay'),
+              ),
+            ],
+          ),
+        );
 
-      return false;
-    }
+        return false;
+      }
 
-    if (int.tryParse(phoneNumberController.text) == null) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Field is empty'),
-          content: const Text('Please fill all fields'),
-          actions: [
-            TextButton(
+      if (int.tryParse(phoneNumberController.text) == null) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Invalid Phone Number'),
+            content: const Text('Please enter a valid phone number'),
+            actions: [
+              TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
-                child: const Text('Okay'))
-          ],
-        ),
-      );
-      return false;
+                child: const Text('Okay'),
+              ),
+            ],
+          ),
+        );
+        return false;
+      }
+
+      return true;
     }
 
-    return true;
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Edit User Profile"),
@@ -96,19 +81,25 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
             TextFormField(
               controller: nameController,
               decoration: const InputDecoration(
-                  labelText: 'Name', border: OutlineInputBorder()),
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 15),
             TextFormField(
               controller: emailController,
               decoration: const InputDecoration(
-                  labelText: 'Email', border: OutlineInputBorder()),
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 15),
             TextFormField(
               controller: phoneNumberController,
               decoration: const InputDecoration(
-                  labelText: 'Phone Number', border: OutlineInputBorder()),
+                labelText: 'Phone Number',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 15),
             TextFormField(
@@ -116,34 +107,38 @@ class _EditUserProfileScreenState extends State<EditUserProfileScreen> {
               maxLines: 5,
               controller: addressController,
               decoration: const InputDecoration(
-                  labelText: 'Address', border: OutlineInputBorder()),
+                labelText: 'Address',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 customElevatedButton(
-                    buttonName: 'Save',
-                    onpress: () {
-                      if (_inputValidator()) {
-                        Navigator.pop(
-                          context,
-                          UserModels(
-                            name: nameController.text,
-                            email: emailController.text,
-                            phoneNumber: int.parse(phoneNumberController.text),
-                            address: addressController.text,
-                            avatar: widget.user.avatar,
-                          ),
-                        );
-                      }
-                    }),
+                  buttonName: 'Save',
+                  onpress: () {
+                    if (_inputValidator()) {
+                      Navigator.pop(
+                        context,
+                        UserModels(
+                          name: nameController.text,
+                          email: emailController.text,
+                          phoneNumber: int.parse(phoneNumberController.text),
+                          address: addressController.text,
+                          avatar: users[index].avatar,
+                        ),
+                      );
+                    }
+                  },
+                ),
                 const SizedBox(width: 16.0),
                 customElevatedButton(
-                    buttonName: 'Cancel',
-                    onpress: () {
-                      Navigator.pop(context);
-                    })
+                  buttonName: 'Cancel',
+                  onpress: () {
+                    Navigator.pop(context);
+                  },
+                ),
               ],
             ),
           ],

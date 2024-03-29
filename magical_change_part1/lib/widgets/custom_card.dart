@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:magical_change_part1/providers/users_list_provider.dart';
 import 'package:magical_change_part1/users_model.dart';
-import 'package:provider/provider.dart';
 
-class CustomCard extends StatelessWidget {
+class CustomCard extends ConsumerWidget {
   UserModels user;
   VoidCallback ontap;
   int index;
@@ -16,7 +16,8 @@ class CustomCard extends StatelessWidget {
       required this.index});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final users = ref.watch(userListProvider);
     return Card(
         child: Padding(
             padding: EdgeInsets.all(10),
@@ -24,7 +25,7 @@ class CustomCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
-                  backgroundImage: AssetImage(user.avatar),
+                  backgroundImage: AssetImage(users[index].avatar),
                   maxRadius: 25,
                 ),
                 SizedBox(width: 20),
@@ -38,56 +39,41 @@ class CustomCard extends StatelessWidget {
                         children: [
                           SizedBox(
                             width: 120,
-                            child: Flexible(child: Consumer<UserListProvider>(
-                              builder: (context, value, child) {
-                                return Text(
-                                  value.users[index].name,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                );
-                              },
+                            child: Flexible(
+                                child: Text(
+                              users[index].name,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                              ),
                             )),
                           ),
                           SizedBox(width: 80),
-                          Consumer<UserListProvider>(
-                            builder: (context, value, child) {
-                              return SizedBox(
-                                width: 100,
-                                child: Flexible(
-                                  child: Text(
-                                    "${value.users[index].phoneNumber}",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 12,
-                                    ),
-                                  ),
+                          SizedBox(
+                            width: 100,
+                            child: Flexible(
+                              child: Text(
+                                users[index].phoneNumber.toString(),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
                                 ),
-                              );
-                            },
+                              ),
+                            ),
                           )
                         ],
                       ),
-                      Consumer<UserListProvider>(
-                        builder: (context, value, child) {
-                          return Text(
-                            "${value.users[index].email}",
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          );
-                        },
+                      Text(
+                        users[index].email,
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                       const SizedBox(height: 10),
                       SizedBox(
                         height: 20,
                         width: 300,
                         child: SingleChildScrollView(
-                            child: Consumer<UserListProvider>(
-                          builder: (context, value, child) {
-                            return Text("${value.users[index].address}");
-                          },
-                        )),
+                            child: Text(users[index].address)),
                       ),
                       const SizedBox(height: 10),
                       Row(
@@ -99,8 +85,8 @@ class CustomCard extends StatelessWidget {
                           SizedBox(width: 200),
                           IconButton(
                             onPressed: () {
-                              Provider.of<UserListProvider>(context,
-                                      listen: false)
+                              ref
+                                  .read(userListProvider.notifier)
                                   .removeUsersFromList(index);
                             },
                             icon: Icon(Icons.delete),
